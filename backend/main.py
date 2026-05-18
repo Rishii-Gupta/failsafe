@@ -9,12 +9,10 @@ from core.security import get_password_hash, verify_password, create_access_toke
 from services.ml_service import process_student_csv
 from pydantic import BaseModel
 
-# Add this right below your imports
 class UserCreate(BaseModel):
     email: str
     password: str
 
-# Create the database tables
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="FAILSAFE API")
@@ -27,12 +25,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- AUTHENTICATION ENDPOINTS ---
 
 @app.post("/api/auth/register")
 def register_faculty(user: UserCreate, db: Session = Depends(get_db)):
     """Creates a new faculty account using a JSON body."""
-    # Notice we now use user.email and user.password
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -54,7 +50,6 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-# --- ML & DASHBOARD ENDPOINTS ---
 
 @app.post("/api/predict/upload")
 async def upload_student_data(file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -65,7 +60,6 @@ async def upload_student_data(file: UploadFile = File(...), db: Session = Depend
     content = await file.read()
     predictions = process_student_csv(content)
     
-    # Save each prediction to the database
     for pred in predictions:
         db_prediction = models.Prediction(
             student_id=pred["student_id"],
@@ -76,7 +70,7 @@ async def upload_student_data(file: UploadFile = File(...), db: Session = Depend
         )
         db.add(db_prediction)
     
-    db.commit() # Commit all saves to the database
+    db.commit()
     
     return {"status": "success", "students_processed": len(predictions), "data": predictions}
 
