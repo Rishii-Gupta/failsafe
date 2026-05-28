@@ -79,3 +79,7 @@ def get_dashboard_data(db: Session = Depends(get_db)):
     """Fetches all saved historical predictions for the frontend dashboard."""
     records = db.query(models.Prediction).all()
     return records
+
+@app.get("/")
+def root():
+    return {"status": "Backend running"}
