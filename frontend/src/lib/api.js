@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://failsafe-api.onrender.com';
+const BASE_URL = 'https://failsafe-zvlf.onrender.com';
 
 const api = axios.create({
   baseURL: BASE_URL,
